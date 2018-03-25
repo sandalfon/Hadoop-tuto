@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -43,7 +44,7 @@ public class AppDriver  {
 		// Creation d'un job en lui fournissant la configuration et une description textuelle de la tache
 		Job job = Job.getInstance(conf);
 		job.setJobName("wordcount");
-
+		
 		// On precise les classes MyProgram, Map et Reduce
 		job.setJarByClass(AppDriver.class);
 		job.setMapperClass(WordCountMapper.class);
@@ -111,5 +112,15 @@ public class AppDriver  {
 		job.waitForCompletion(true);
 		System.out.println("WordPerDoc Completed");
 	}
-
+	public static void runTfIDF(Path inputFilePath, Path outputFilePath, Path oriPath) throws Exception {
+		Configuration conf = new Configuration();
+		// Creation d'un job en lui fournissant la configuration et une description textuelle de la tache
+		Job job = Job.getInstance(conf);
+		job.setJobName("tfIdf");
+		FileSystem fs = FileSystem.get(conf);
+		FileStatus[] userFilesStatusList = fs.listStatus(oriPath);
+		final int nbInputDoc = userFilesStatusList.length;
+        conf.setInt("nbInputDoc", nbInputDoc);
+		
+	}
 }
