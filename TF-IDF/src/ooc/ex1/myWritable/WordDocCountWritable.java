@@ -8,24 +8,24 @@ import java.io.IOException;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.WritableComparable;
 
-public class WordCountWritable implements WritableComparable<WordCountWritable> {
-	private WordDocWritable wordDoc = new WordDocWritable();
+public class WordDocCountWritable implements WritableComparable<WordDocCountWritable> {
+	private WordDocCountWritable wordDoc = new WordDocCountWritable();
 	private IntWritable count = new IntWritable(0);
 
-	public WordCountWritable() {
+	public WordDocCountWritable() {
 
 	}
 
-	public WordCountWritable(WordDocWritable wordDoc, IntWritable count) {
+	public WordDocCountWritable(WordDocCountWritable wordDoc, IntWritable count) {
 		super();
 		this.count = count;
 		this.wordDoc = wordDoc;
 	}
 
-	public WordDocWritable getWordDoc() {
+	public WordDocCountWritable getWordDoc() {
 		return wordDoc;
 	}
-	public void setWordDoc(WordDocWritable wordDoc) {
+	public void setWordDoc(WordDocCountWritable wordDoc) {
 		this.wordDoc = wordDoc;
 	}
 	public IntWritable getCount() {
@@ -47,13 +47,13 @@ public class WordCountWritable implements WritableComparable<WordCountWritable> 
 
 	}
 	
-	public void set(WordCountWritable other) {
+	public void set(WordDocCountWritable other) {
 		count = other.getCount();
 		wordDoc = other.getWordDoc();
 	}
 	
 	@Override
-	public int compareTo(WordCountWritable o) {
+	public int compareTo(WordDocCountWritable o) {
 		if(this.getCount() == o.getCount()) {
 			return(this.getWordDoc().compareTo(o.getWordDoc()));
 		}else {

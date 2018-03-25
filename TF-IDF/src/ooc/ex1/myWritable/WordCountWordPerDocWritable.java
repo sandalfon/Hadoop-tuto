@@ -5,22 +5,23 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.WritableComparable;
 
 public class WordCountWordPerDocWritable  implements WritableComparable<WordCountWordPerDocWritable> {
 	private IntWritable wordPerDoc = new IntWritable(0);
-	private WordCountWritable wordCount = new WordCountWritable();
+	private IntWritable wordCount = new IntWritable(0);
 	public WordCountWordPerDocWritable() {
-		
+
 	}
-	
-	public WordCountWordPerDocWritable(WordCountWritable wordCount, IntWritable wordPerDoc){
+
+	public WordCountWordPerDocWritable(IntWritable wordCount, IntWritable wordPerDoc){
 		super();
 		this.wordCount = wordCount;
 		this.wordPerDoc = wordPerDoc;
-		
+
 	}
-	
+
 	@Override
 	public void readFields(DataInput in) throws IOException {
 		wordCount.readFields(in);
@@ -36,10 +37,14 @@ public class WordCountWordPerDocWritable  implements WritableComparable<WordCoun
 	@Override
 	public int compareTo(WordCountWordPerDocWritable o) {
 		if(this.getWordPerDoc()==o.getWordPerDoc()) {
-			return(this.getWordCount().compareTo(o.getWordCount()));
+			if(this.getWordCount()==o.getWordCount()) {
+				return 0;
+			}else {
+				return 1;
+			}
 		}
 		else {
-		return 1;
+			return 1;
 		}
 	}
 
@@ -47,7 +52,7 @@ public class WordCountWordPerDocWritable  implements WritableComparable<WordCoun
 		wordCount = other.getWordCount();
 		wordPerDoc = other.getWordPerDoc();
 	}
-	
+
 	public IntWritable getWordPerDoc() {
 		return wordPerDoc;
 	}
@@ -56,12 +61,16 @@ public class WordCountWordPerDocWritable  implements WritableComparable<WordCoun
 		this.wordPerDoc = wordPerDoc;
 	}
 
-	public WordCountWritable getWordCount() {
+	public IntWritable getWordCount() {
 		return wordCount;
 	}
 
-	public void setWordCount(WordCountWritable wordCount) {
+	public void setWordCount(IntWritable wordCount) {
 		this.wordCount = wordCount;
 	}
 
+	public Text toText() {
+		
+	return new Text(this.getWordCount().toString()+"::"+this.getWordPerDoc().toString());
+	}
 }

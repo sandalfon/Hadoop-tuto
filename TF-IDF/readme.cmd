@@ -5,7 +5,7 @@ cd data
 hadoop fs -put * /input/
 hadoop fs -rm -r /output
 cd ..\jar
-hadoop jar tf-idf.jar ooc.ex1.wordcount.WordCountDriver /input/ /output/
+hadoop jar tf-idf.jar AppDriver /input/ /output/
 cd ..\output
 del /Q *
 hadoop fs -get /output/*
