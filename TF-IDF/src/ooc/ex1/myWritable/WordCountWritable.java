@@ -4,30 +4,22 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-
 import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.WritableComparable;
 
-public class WordCountWritable implements WritableComparable<WordCountWritable> {
-	private WordDocWritable wordDoc = new WordDocWritable();
-	private IntWritable count = new IntWritable(0);
-
-	public WordCountWritable() {
-
+public class WordCountWritable  implements WritableComparable<WordCountWritable> {
+	private Text word = new Text();
+	private IntWritable count =  new IntWritable(0);
+	
+	public Text getWord() {
+		return word;
 	}
 
-	public WordCountWritable(WordDocWritable wordDoc, IntWritable count) {
-		super();
-		this.count = count;
-		this.wordDoc = wordDoc;
+	public void setWord(Text word) {
+		this.word = word;
 	}
 
-	public WordDocWritable getWordDoc() {
-		return wordDoc;
-	}
-	public void setWordDoc(WordDocWritable wordDoc) {
-		this.wordDoc = wordDoc;
-	}
 	public IntWritable getCount() {
 		return count;
 	}
@@ -35,29 +27,43 @@ public class WordCountWritable implements WritableComparable<WordCountWritable> 
 	public void setCount(IntWritable count) {
 		this.count = count;
 	}
+	
+	public WordCountWritable() {
+		
+	}
+	
+	public WordCountWritable(Text word, IntWritable count) {
+		super();
+		this.word = word;
+		this.count = count;
+	}
+	
+	
 	@Override
 	public void readFields(DataInput in) throws IOException {
+		word.readFields(in);
 		count.readFields(in);
-		wordDoc.readFields(in);
+		
 	}
+
 	@Override
 	public void write(DataOutput out) throws IOException {
+		word.write(out);
 		count.write(out);
-		wordDoc.write(out);
+		
+	}
 
-	}
-	
-	public void set(WordCountWritable other) {
-		count = other.getCount();
-		wordDoc = other.getWordDoc();
-	}
-	
 	@Override
 	public int compareTo(WordCountWritable o) {
-		if(this.getCount() == o.getCount()) {
-			return(this.getWordDoc().compareTo(o.getWordDoc()));
-		}else {
+		if (this.getCount() == o.getCount()) {
+			return this.getWord().compareTo(o.getWord());
+		}
+		else{
 			return 1;
 		}
+	}
+	
+	public Text toText() {
+		return(new Text(this.getWord()+"::"+this.getCount().toString()));
 	}
 }
