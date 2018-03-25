@@ -11,7 +11,7 @@ import org.apache.hadoop.mapreduce.Mapper;
 import ooc.ex1.myWritable.WordCountWordPerDocWritable;
 import ooc.ex1.myWritable.WordDocWritable;
 
-public class TfIdfMapper extends Mapper<LongWritable, Text, WordDocWritable, WordCountWordPerDocWritable> {
+public class TfIdfMapper extends Mapper<LongWritable, Text, Text, Text> {
 	private WordDocWritable wordDocWritable; //= new WordDocWritable();
 	private WordCountWordPerDocWritable countWordPerDocWritable;// = new WordCountWordPerDocWritable();
 	private Text word = new Text();
@@ -27,9 +27,9 @@ public class TfIdfMapper extends Mapper<LongWritable, Text, WordDocWritable, Wor
 		word = new Text(tokens2.nextToken());
 		count = new IntWritable(Integer.parseInt(tokens3.nextToken()));
 		perDoc = new IntWritable(Integer.parseInt(tokens3.nextToken())); 
-		wordDocWritable = new WordDocWritable(word, doc);
-		countWordPerDocWritable = new WordCountWordPerDocWritable(count, perDoc);
-		context.write(wordDocWritable, countWordPerDocWritable);
+		//wordDocWritable = new WordDocWritable(word, doc);
+		//countWordPerDocWritable = new WordCountWordPerDocWritable(count, perDoc);
+		context.write(word, new Text(doc+"::"+count+"::"+perDoc));
 		
 	}
 }

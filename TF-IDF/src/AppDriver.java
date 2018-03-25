@@ -21,6 +21,8 @@ import org.apache.hadoop.util.ToolRunner;
 import ooc.ex1.myWritable.WordCountWordPerDocWritable;
 import ooc.ex1.myWritable.WordCountWritable;
 import ooc.ex1.myWritable.WordDocWritable;
+import ooc.ex1.tfidf.TfIdfMapper;
+import ooc.ex1.tfidf.TfIdfReducer;
 import ooc.ex1.wordcount.WordCountMapper;
 import ooc.ex1.wordcount.WordCountReducer;
 import ooc.ex1.wordperdoc.WordPerDocMapper;
@@ -35,8 +37,10 @@ public class AppDriver  {
 		Path inputFilePath = new Path(args[0]);
 		Path outputFilePath = new Path(args[1]);
 		Path wordCountPath = new Path("wordCount");
+		Path wordPerDoc = new Path("wordPerDoc");
 		runWordCount(inputFilePath, wordCountPath);
-		runWordPerDoc(wordCountPath, outputFilePath);
+		runWordPerDoc(wordCountPath, wordPerDoc);
+		runTfIDF(wordPerDoc, outputFilePath, inputFilePath);
 	}
 
 	public static void runWordCount(Path inputFilePath, Path outputFilePath) throws Exception {
@@ -44,7 +48,7 @@ public class AppDriver  {
 		// Creation d'un job en lui fournissant la configuration et une description textuelle de la tache
 		Job job = Job.getInstance(conf);
 		job.setJobName("wordcount");
-		
+
 		// On precise les classes MyProgram, Map et Reduce
 		job.setJarByClass(AppDriver.class);
 		job.setMapperClass(WordCountMapper.class);
@@ -120,7 +124,35 @@ public class AppDriver  {
 		FileSystem fs = FileSystem.get(conf);
 		FileStatus[] userFilesStatusList = fs.listStatus(oriPath);
 		final int nbInputDoc = userFilesStatusList.length;
-        conf.setInt("nbInputDoc", nbInputDoc);
-		
+		job.getConfiguration().setInt("nbInputDoc", nbInputDoc);
+
+		// On precise les classes MyProgram, Map et Reduce
+		job.setJarByClass(AppDriver.class);
+		job.setMapperClass(TfIdfMapper.class);
+		job.setReducerClass(TfIdfReducer.class);
+
+
+		job.setOutputKeyClass(Text.class);
+		job.setOutputValueClass(Text.class);
+
+		job.setInputFormatClass(TextInputFormat.class);
+		job.setOutputFormatClass(TextOutputFormat.class);
+
+
+
+		// On accepte une entree recursive
+		FileInputFormat.setInputDirRecursive(job, true);
+
+		FileInputFormat.addInputPath(job, inputFilePath);
+		FileOutputFormat.setOutputPath(job, outputFilePath);
+
+
+		if (fs.exists(outputFilePath)) {
+			fs.delete(outputFilePath, true);
+		}
+
+		job.waitForCompletion(true);
+		System.out.println("tfIdf Completed ::"+nbInputDoc);
+
 	}
 }

@@ -24,7 +24,7 @@ public class WordPerDocReducer  extends Reducer<Text, WordCountWritable, Text, T
 		HashMap<WordDocWritable, Integer> memWordDocWodCount = new HashMap<WordDocWritable, Integer>();
 
 		for(WordCountWritable value : values) {
-			wordDocWritable = new WordDocWritable(value.getWord(), key);
+			wordDocWritable = new WordDocWritable(new Text(value.getWord()), key);
 			memWordDocWodCount.put(wordDocWritable, value.getCount().get());
 			sum += value.getCount().get();
 
