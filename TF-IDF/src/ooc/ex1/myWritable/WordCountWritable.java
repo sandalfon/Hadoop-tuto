@@ -1,71 +1,84 @@
 package ooc.ex1.myWritable;
- 
- import java.io.DataInput;
- import java.io.DataOutput;
- import java.io.IOException;
- 
- 
- import org.apache.hadoop.io.IntWritable;
+
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.StringTokenizer;
+
+import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.WritableComparable;
- 
+
 public class WordCountWritable implements WritableComparable<WordCountWritable> {
 	private Text word = new Text();
- 	private IntWritable count = new IntWritable(0);
- 
-public WordCountWritable() {
- 
- 	}
- 
-public WordCountWritable(Text word, IntWritable count) {
- 		super();
- 		this.count = count;
- 		this.word = word;
- 	}
- 
+	private IntWritable count = new IntWritable(0);
+
+	public WordCountWritable() {
+
+	}
+
+	public WordCountWritable(Text word, IntWritable count) {
+		super();
+		this.count = count;
+		this.word = word;
+	}
+
 	public Text getWord() {
 
- 		return word;
- 	}
+		return word;
+	}
 	public void setWord(Text word) {
 
- 		this.word = word;
- 	}
- 	public IntWritable getCount() {
- 		return count;
- 
- 	}
- 	
- 	public void setCount(IntWritable count) {
- 		this.count = count;
- 	}
- 	@Override
- 	public void readFields(DataInput in) throws IOException {
- 		count.readFields(in);
- 		word.readFields(in);
- 	}
- 	@Override
- 	public void write(DataOutput out) throws IOException {
- 		count.write(out);
- 		word.write(out);
- 
- 	}
+		this.word = word;
+	}
+	public IntWritable getCount() {
+		return count;
+
+	}
+
+	public void setCount(IntWritable count) {
+		this.count = count;
+	}
+	@Override
+	public void readFields(DataInput in) throws IOException {
+		count.readFields(in);
+		word.readFields(in);
+	}
+	@Override
+	public void write(DataOutput out) throws IOException {
+		count.write(out);
+		word.write(out);
+
+	}
 	public void set(WordCountWritable other) {
 
- 		count = other.getCount();
- 		word = other.getWord();
- 	}
- 	
- 	@Override
+		count = other.getCount();
+		word = other.getWord();
+	}
+
+	@Override
 	public int compareTo(WordCountWritable o) {
 
- 		if(this.getCount() == o.getCount()) {
- 			return(this.getWord().compareTo(o.getWord()));
- 		}else {
- 			return 1;
- 		}
- 	}
- 	
- 	
- 	
- }
+		if(this.getCount() == o.getCount()) {
+			return(this.getWord().compareTo(o.getWord()));
+		}else {
+			return 1;
+		}
+	}
+
+	public Text toText() {
+		return new Text(word+"::"+count);
+	}
+
+	@Override
+	public String toString() {
+		return word+"::"+count;
+	}
+
+	public WordCountWritable(String s) {
+		super();
+		StringTokenizer tokens = new StringTokenizer(s.toString(), "::");
+		this.word = new Text(tokens.nextToken());
+		this.count = new IntWritable(Integer.parseInt(tokens.nextToken()));
+	}
+}

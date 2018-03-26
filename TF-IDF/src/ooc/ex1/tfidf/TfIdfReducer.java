@@ -7,10 +7,6 @@ import java.util.StringTokenizer;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 
-import com.sun.glass.ui.Size;
-
-import ooc.ex1.myWritable.WordCountWordPerDocWritable;
-import ooc.ex1.myWritable.WordCountWritable;
 import ooc.ex1.myWritable.WordDocWritable;
 
 public class TfIdfReducer extends Reducer<Text, Text, Text, Text> {
@@ -25,7 +21,7 @@ public class TfIdfReducer extends Reducer<Text, Text, Text, Text> {
 		double idf =0.0;
 		double tf;
 		Text docId;
-		
+
 		for(Text value : values) {
 			nbWordInDoc ++;
 			StringTokenizer tokens = new StringTokenizer(value.toString(), "::");
@@ -35,15 +31,12 @@ public class TfIdfReducer extends Reducer<Text, Text, Text, Text> {
 			wordDocWritable = new WordDocWritable(new Text(key), new Text(docId));
 			tf = (count*1.0)/(perDoc*1.0);
 			tfs.put(wordDocWritable, tf);
-			//context.write(wordDocWritable.toText(), new Text(count+"/"+perDoc+"="+tf));
 		}
+
 		idf=Math.log10((n*1.0)/(nbWordInDoc*1.0));
-		
+
 		for(WordDocWritable wordDoc : tfs.keySet()) {
-			
-			context.write(wordDoc.toText(), new Text(tfs.get(wordDoc)*idf+""));
-		}
-		
-		
+			context.write(wordDoc.toOutput(), new Text("with Tf-Idf = "+tfs.get(wordDoc)*idf+""));
+		}	
 	}
 }

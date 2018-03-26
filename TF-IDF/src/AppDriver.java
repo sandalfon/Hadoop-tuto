@@ -1,9 +1,4 @@
-
-
-import java.io.IOException;
-
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -14,11 +9,8 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
-import org.apache.hadoop.util.GenericOptionsParser;
-import org.apache.hadoop.util.Tool;
-import org.apache.hadoop.util.ToolRunner;
 
-import ooc.ex1.myWritable.WordCountWordPerDocWritable;
+
 import ooc.ex1.myWritable.WordCountWritable;
 import ooc.ex1.myWritable.WordDocWritable;
 import ooc.ex1.tfidf.TfIdfMapper;
@@ -41,6 +33,7 @@ public class AppDriver  {
 		runWordCount(inputFilePath, wordCountPath);
 		runWordPerDoc(wordCountPath, wordPerDoc);
 		runTfIDF(wordPerDoc, outputFilePath, inputFilePath);
+
 	}
 
 	public static void runWordCount(Path inputFilePath, Path outputFilePath) throws Exception {
@@ -91,7 +84,6 @@ public class AppDriver  {
 		job.setReducerClass(WordPerDocReducer.class);
 
 		// Definition des types clé/valeur de notre problème
-		//job.setMapOutputKeyClass(TextWritable.class);
 		job.setMapOutputValueClass(WordCountWritable.class);
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(WordCountWritable.class);

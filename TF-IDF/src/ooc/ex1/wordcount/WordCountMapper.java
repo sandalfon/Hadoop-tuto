@@ -1,15 +1,10 @@
 package ooc.ex1.wordcount;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.util.HashSet;
-import java.util.Scanner;
 import java.util.Set;
 import java.util.StringTokenizer;
 import org.apache.hadoop.io.IntWritable;
@@ -28,14 +23,15 @@ public class WordCountMapper extends Mapper<LongWritable, Text, WordDocWritable,
 	private Text word = new Text();
 	private WordDocWritable wordDocId;
 	private Set<String> patternsToSkip = new HashSet<String>();
+
 	@Override
 	public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
-		
+
 		String fileName = ((FileSplit) context.getInputSplit()).getPath().getName();
 		String line = value.toString().toLowerCase().replaceAll("'","").replaceAll("[^\\p{L} ]", "");
 		String word2chk;
-
 		StringTokenizer tokenizer = new StringTokenizer(line);
+		
 		while (tokenizer.hasMoreTokens()) {
 			word2chk = tokenizer.nextToken();
 			if(wordCheck(word2chk)) {
@@ -63,7 +59,6 @@ public class WordCountMapper extends Mapper<LongWritable, Text, WordDocWritable,
 		if ( patternsToSkip.contains(word2chk)) {
 			return false;
 		}
-
 		return true;
 	}
 
@@ -72,8 +67,6 @@ public class WordCountMapper extends Mapper<LongWritable, Text, WordDocWritable,
 		String urlStr = "https://sites.google.com/site/kevinbouge/stopwords-lists/stopwords_en.txt";
 		try {
 			url = new URL(urlStr);
-
-
 			BufferedReader fis = new BufferedReader(new InputStreamReader(url.openStream()));
 			String pattern;
 			while ((pattern = fis.readLine()) != null) {

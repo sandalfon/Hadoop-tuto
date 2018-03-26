@@ -3,15 +3,15 @@ package ooc.ex1.myWritable;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.StringTokenizer;
 
-import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.WritableComparable;
 
 public class WordDocWritable implements WritableComparable<WordDocWritable> {
 	private Text word = new Text(); 
 	private Text docId= new Text();
-	
+
 	@Override
 	public void readFields(DataInput in) throws IOException {
 		word.readFields(in);
@@ -26,7 +26,7 @@ public class WordDocWritable implements WritableComparable<WordDocWritable> {
 
 	@Override
 	public int compareTo(WordDocWritable o) {
-		
+
 		if (this.getDocId().compareTo(o.getDocId())==0) {
 			return this.getWord().compareTo(o.getWord());
 		}
@@ -34,7 +34,7 @@ public class WordDocWritable implements WritableComparable<WordDocWritable> {
 			return this.getDocId().compareTo(o.getDocId());
 		}
 	}
-	
+
 	public Text getWord() {
 		return word;
 	}
@@ -55,11 +55,11 @@ public class WordDocWritable implements WritableComparable<WordDocWritable> {
 		word = other.getWord();
 		docId = other.getDocId();
 	}
-	
+
 	public WordDocWritable() {
-		
+
 	}
-	
+
 	public WordDocWritable(Text word, Text docId) {
 		super();
 		this.word = word;
@@ -69,4 +69,21 @@ public class WordDocWritable implements WritableComparable<WordDocWritable> {
 	public Text toText() {
 		return(new Text(this.getDocId()+"::"+this.getWord()));
 	}
+
+	public Text toOutput() {
+		return(new Text("Word "+this.getWord()+" in document "+this.getDocId()));
+	}
+	
+	@Override
+	public String toString() {
+		return this.getDocId()+"::"+this.getWord();
+	}
+
+	public  WordDocWritable(String s) {
+		super();
+		StringTokenizer tokens = new StringTokenizer(s.toString(), "::");
+		this.docId = new Text(tokens.nextToken());
+		this.word = new Text(tokens.nextToken());
+	}  
+
 }

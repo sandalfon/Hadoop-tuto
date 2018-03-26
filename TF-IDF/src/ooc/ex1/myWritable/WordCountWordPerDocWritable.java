@@ -3,6 +3,7 @@ package ooc.ex1.myWritable;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.StringTokenizer;
 
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
@@ -70,7 +71,20 @@ public class WordCountWordPerDocWritable  implements WritableComparable<WordCoun
 	}
 
 	public Text toText() {
-		
-	return new Text(this.getWordCount().toString()+"::"+this.getWordPerDoc().toString());
+
+		return new Text(this.getWordCount().toString()+"::"+this.getWordPerDoc().toString());
 	}
+
+	@Override
+	public String toString() {
+		return wordCount+"::"+wordPerDoc;
+	}
+
+	public WordCountWordPerDocWritable(String s) {
+		super();
+		StringTokenizer tokens = new StringTokenizer(s.toString(), "::");
+		this.wordCount = new IntWritable(Integer.parseInt(tokens.nextToken()));
+		this.wordPerDoc = new IntWritable(Integer.parseInt(tokens.nextToken()));
+	}
+
 }

@@ -8,29 +8,22 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
-import ooc.ex1.myWritable.WordCountWordPerDocWritable;
 import ooc.ex1.myWritable.WordCountWritable;
 import ooc.ex1.myWritable.WordDocWritable;
 
 public class WordPerDocMapper extends Mapper<LongWritable, Text, Text, WordCountWritable> {
 
-	//private WordDocWritable wordDocWritable = new WordDocWritable();
-	//private WordCountWordPerDocWritable wordCountWordPerDocWritable = new WordCountWordPerDocWritable();
-	//IntWritable valueOut = new IntWritable(1);
-	Text keyOut = new Text();
-	WordCountWritable valueOut = new WordCountWritable();
+	private Text keyOut = new Text();
+	private WordCountWritable valueOut = new WordCountWritable();
+	private WordDocWritable wordDoc = new WordDocWritable();
 	
 	public void map(LongWritable key, Text value,Context context) throws IOException, InterruptedException {
 		StringTokenizer tokens = new StringTokenizer(value.toString(), "\t");
-		String docIdWord = tokens.nextToken();
-		
-		int wordCount = Integer.parseInt(tokens.nextToken());
-		tokens = new StringTokenizer(docIdWord, "::");
-		keyOut = new Text(tokens.nextToken());
-		valueOut.setWord(new Text(tokens.nextToken()));
-		valueOut.setCount(new IntWritable(wordCount));
-
-		
+		wordDoc = new WordDocWritable(tokens.nextToken());
+		int count = Integer.parseInt(tokens.nextToken());
+		valueOut.setWord(new Text(wordDoc.getWord()));
+		valueOut.setCount(new IntWritable(count));
+		keyOut = new Text(wordDoc.getDocId());
 		context.write(keyOut, valueOut);
 	}
 	

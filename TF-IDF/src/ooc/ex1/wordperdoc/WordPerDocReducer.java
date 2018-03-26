@@ -2,8 +2,6 @@ package ooc.ex1.wordperdoc;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
@@ -13,10 +11,9 @@ import ooc.ex1.myWritable.WordCountWordPerDocWritable;
 import ooc.ex1.myWritable.WordCountWritable;
 import ooc.ex1.myWritable.WordDocWritable;
 
-public class WordPerDocReducer  extends Reducer<Text, WordCountWritable, Text, Text> {
+public class WordPerDocReducer  extends Reducer<Text, WordCountWritable, WordDocWritable, WordCountWordPerDocWritable> {
 	private WordCountWordPerDocWritable wordCountWordPerDocWritable; 
 	private WordDocWritable wordDocWritable; 
-
 
 	public void reduce(final Text key, final  Iterable<WordCountWritable> values,
 			final Context context) throws IOException, InterruptedException {
@@ -27,16 +24,12 @@ public class WordPerDocReducer  extends Reducer<Text, WordCountWritable, Text, T
 			wordDocWritable = new WordDocWritable(new Text(value.getWord()), key);
 			memWordDocWodCount.put(wordDocWritable, value.getCount().get());
 			sum += value.getCount().get();
-
 		}
 
 		for(WordDocWritable wordDoc : memWordDocWodCount.keySet()) {
-
 			wordCountWordPerDocWritable = new WordCountWordPerDocWritable(new IntWritable(memWordDocWodCount.get(wordDoc)), new IntWritable(sum));
-			context.write(wordDoc.toText(), wordCountWordPerDocWritable.toText());
+			context.write(wordDoc, wordCountWordPerDocWritable);
 		}
-
-
 
 	}
 }
