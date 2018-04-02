@@ -18,9 +18,8 @@ ShortWritable, FloatArrayWritable> {
 			Iterable<FloatArrayWritable> values, Context context)
 					throws IOException, InterruptedException {
 
-		// This task sums all the partial results for one stripe of the vector
-		// v_k and adds the teleportation factor.
-
+		// Somme des différentes parties du vecteur v_k et ajout de la teleportation
+		
 		Configuration conf = context.getConfiguration();
 		int numPages = Integer.parseInt(conf.get("nbPages"));
 		float beta = Float.parseFloat(conf.get("teleportProb"));
@@ -31,21 +30,20 @@ ShortWritable, FloatArrayWritable> {
 			Writable[] partialVi = value.get();
 
 			if (vi == null) {
-				// vi is initialized here in order to know the correct size of
-				// the stripe (the last stripe can be incomplete).
+				// gestion du denier v_k qui peut être incomplet en taille .
 				vi = new FloatWritable[partialVi.length];
 				for (int k = 0; k < vi.length; k++) {
 					vi[k] = new FloatWritable(0);
 				}
 			}
 
-			// Sum the partial results.
+			// somme
 			for (int k = 0; k < vi.length; k++) {
 				vi[k].set(vi[k].get() + ((FloatWritable) partialVi[k]).get());
 			}
 		}
 
-		// Add the teleportation factor.
+		// teleporte.
 		for (int k = 0; k < vi.length; k++) {
 			vi[k].set(beta * vi[k].get() + (1 - beta) / numPages);
 		}

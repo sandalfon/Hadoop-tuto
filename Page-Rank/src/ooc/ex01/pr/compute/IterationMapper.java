@@ -23,9 +23,8 @@ ShortWritable, FloatArrayWritable> {
 	public void map(ShortArrayWritable key, MatrixBlockWritable value,
 			Context context) throws IOException, InterruptedException {
 
-		// This task gets each block M_{i,j}, loads the corresponding stripe j
-		// of the vector v_{k-1} and produces the partial result of the stripe i
-		// of the vector v_k.
+		// pour chaque blocque M_i,j, on recupère le vecteur v_k-1 correspondant pour faire
+		//le vecteur v_k
 
 		Configuration conf = context.getConfiguration();
 		int iter = Integer.parseInt(conf.get("iterations"));
@@ -40,12 +39,12 @@ ShortWritable, FloatArrayWritable> {
 		FloatWritable[] vj = new FloatWritable[vjSize];
 
 		if (iter == 1) {
-			// Initial PageRank vector with 1/n for all pages.
+			// initialisation de v_k avec 1/N (N nb page)
 			for (int k = 0; k < vj.length; k++) {
 				vj[k] = new FloatWritable(1.0f / numPages);
 			}
 		} else {
-			// Load the stripe j of the vector v_{k-1} from the MapFiles.
+			// recupere le vecteur v_k
 			Path outputDir = MapFileOutputFormat.getOutputPath(context).getParent();
 			Path vjDir = new Path(outputDir, "v" + (iter - 1));
 			MapFile.Reader[] readers = MapFileOutputFormat.getReaders(vjDir, conf);
@@ -63,15 +62,14 @@ ShortWritable, FloatArrayWritable> {
 			}
 		}
 
-		// Initialize the partial result i of the vector v_k.
+		// Initialisation partiel de l'element i de v_k.
 		int viSize = (i > numPages / blockSize) ? (numPages % blockSize) : blockSize;
 		FloatWritable[] vi = new FloatWritable[viSize];
 		for (int k = 0; k < vi.length; k++) {
 			vi[k] = new FloatWritable(0);
 		}
 
-		// Multiply M_{i,j} by the stripe j of the vector v_{k-1} to obtain the
-		// partial result i of the vector v_k.
+		//poduit M_i,j par la partie (j) du vecteur v_k-1 poru le calcul  partiel.
 		Writable[][] blockColumns = value.get();
 		for (int k = 0; k < blockColumns.length; k++) {
 			Writable[] blockColumn = blockColumns[k];
@@ -79,9 +77,7 @@ ShortWritable, FloatArrayWritable> {
 				int vDegree = ((ShortWritable) blockColumn[0]).get();
 				for (int columnIndex = 1; columnIndex < blockColumn.length; columnIndex++) {
 					int l = ((ShortWritable) blockColumn[columnIndex]).get();
-					float aa = vi[l].get();
-					float bb =vj[k].get();
-					vi[l].set(aa +  (1.0f / vDegree) * bb);
+					vi[l].set(vi[l].get() +  (1.0f / vDegree) * vj[k].get());
 				}
 			}
 		}

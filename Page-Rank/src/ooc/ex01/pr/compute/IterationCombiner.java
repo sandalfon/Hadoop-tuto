@@ -17,25 +17,21 @@ ShortWritable, FloatArrayWritable> {
 			Iterable<FloatArrayWritable> values, Context context)
 					throws IOException, InterruptedException {
 
-		// This task sums all the partial results for one stripe of the vector
-		// v_k. It is a separate class since PageRankIterationReducer also adds
-		// the teleportation factor.
-
+		// somme sur les parties du vecteur v_n
 		FloatWritable[] vi = null;
 
 		for (FloatArrayWritable value : values) {
 			Writable[] partialVi = value.get();
 
 			if (vi == null) {
-				// vi is initialized here in order to know the correct size of
-				// the stripe (the last stripe can be incomplete).
+				// gestion du cas ou le dernier v_k est de taille moindre que le reste des v_k
 				vi = new FloatWritable[partialVi.length];
 				for (int k = 0; k < vi.length; k++) {
 					vi[k] = new FloatWritable(0);
 				}
 			}
 
-			// Sum the partial results.
+			// somme
 			for (int k = 0; k < vi.length; k++) {
 				vi[k].set(vi[k].get() + ((FloatWritable) partialVi[k]).get());
 			}

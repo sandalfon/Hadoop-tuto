@@ -1,7 +1,6 @@
 package ooc.ex01.pr.readerParser;
 
 import java.io.IOException;
-import java.util.StringTokenizer;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.LongWritable;
@@ -42,12 +41,11 @@ public class MatrixMapper extends Mapper<LongWritable, Text, ShortArrayWritable,
 				w = Integer.parseInt(vOutlinks[k])+1;
 				i = (short) ((w - 1) / blockSize + 1);
 
-				// Indexes of the block M_{i,j}.
+				// Index du bloque M_i,j.
 				blockIndexes[0].set(i);
 				blockIndexes[1].set(j);
-				// One entry of the block M_{i,j} corresponding to the v -> w link.
-				// The sparse block representation also needs information about
-				// the degree of the vector v.
+				// l'element du  blocque M_i,j correspond au lien de v -> w
+				// et on ajoute le degree du noeud
 				blockEntry[0].set((short) ((v - 1) % blockSize));
 				blockEntry[1].set((short) ((w - 1) % blockSize));
 				blockEntry[2].set((short) vOutlinks.length);
@@ -56,34 +54,5 @@ public class MatrixMapper extends Mapper<LongWritable, Text, ShortArrayWritable,
 						new ShortArrayWritable(blockEntry));
 			}
 		}
-		/*StringTokenizer tokenizer = new StringTokenizer( value.toString().replace(" -1",""),": ");
-
-
-		int v, w, vDegree;
-		short i, j;
-		vDegree = tokenizer.countTokens();
-		v = Integer.parseInt(tokenizer.nextToken());
-		j = (short) ((v - 1) / blockSize + 1);
-
-		context.write(new ShortArrayWritable(blockIndexes),
-				new ShortArrayWritable(blockEntry));
-		if(tokenizer.hasMoreTokens()) {
-			StringTokenizer tokens = new StringTokenizer(tokenizer.nextToken()," ");
-			while(tokens.hasMoreTokens()) {
-				w  = Integer.parseInt(tokens.nextToken());
-				i = (short) ((w - 1) / blockSize + 1);
-				// Indexes of the block M_{i,j}.
-				blockIndexes[0].set(i);
-				blockIndexes[1].set(j);
-				blockEntry[0].set((short) ((v - 1) % blockSize));
-				blockEntry[1].set((short) ((w - 1) % blockSize));
-				blockEntry[2].set((short) vDegree);
-
-				context.write(new ShortArrayWritable(blockIndexes),
-						new ShortArrayWritable(blockEntry));
-			}
-
-		}
-		 */
 	}
 }

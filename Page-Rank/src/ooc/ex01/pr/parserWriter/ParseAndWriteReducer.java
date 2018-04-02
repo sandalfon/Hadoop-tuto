@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.AbstractMap;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.PriorityQueue;
@@ -14,19 +13,15 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.MapFile;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapreduce.Partitioner;
 import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
-import org.apache.hadoop.mapreduce.lib.partition.HashPartitioner;
 
 import ooc.ex01.pr.myWritable.MapEntryKeyComparator;
 public class ParseAndWriteReducer extends Reducer<FloatWritable, IntWritable, FloatWritable, Text> {
 
 
 
-	private PriorityQueue<Map.Entry<Float, Integer>> topN;
+	private PriorityQueue<Map.Entry<Float, Integer>> topRes;
 	private static HashMap<Integer, String> myDic;
 
 
@@ -53,10 +48,10 @@ public class ParseAndWriteReducer extends Reducer<FloatWritable, IntWritable, Fl
 	InterruptedException {
 
 		Configuration conf = context.getConfiguration();
-		int topResults = Integer.parseInt(conf.get("topRes"));
+		int nbTopRes = Integer.parseInt(conf.get("topRes"));
 
-		// This queue keeps the top N elements by PageRank.
-		topN = new PriorityQueue<Map.Entry<Float, Integer>>(topResults,
+
+		topRes = new PriorityQueue<Map.Entry<Float, Integer>>(nbTopRes,
 				new MapEntryKeyComparator<Float, Integer>());
 		myDic = readDic(context);
 	}
@@ -72,17 +67,10 @@ public class ParseAndWriteReducer extends Reducer<FloatWritable, IntWritable, Fl
 		for (IntWritable inValue : inValues) {
 			int page = inValue.get();
 			float pageRank = inKey.get();
-
-			// The elements in the queue are sorted (in non-decreasing order) by
-			// PageRank. The queue is filled up until it contains topResults
-			// elements. Then, a new element will be added only if its PageRank
-			// is greater than the lowest PageRank in the queue. If the queue is
-			// full and a new element is added, the one with the lowest PageRank
-			// is removed from the queue.
-			if (topN.size() < topResults || pageRank >= topN.peek().getKey()) {
-				topN.add(new AbstractMap.SimpleEntry<Float, Integer>(pageRank, page));
-				if (topN.size() > topResults) {
-					topN.poll();
+			if (topRes.size() < topResults || pageRank >= topRes.peek().getKey()) {
+				topRes.add(new AbstractMap.SimpleEntry<Float, Integer>(pageRank, page));
+				if (topRes.size() > topResults) {
+					topRes.poll();
 				}
 			}
 		}
@@ -92,14 +80,15 @@ public class ParseAndWriteReducer extends Reducer<FloatWritable, IntWritable, Fl
 	protected void cleanup(Context context) throws IOException,
 	InterruptedException {
 
-		float[] pageRanks = new float[topN.size()];
-		String[] urls  = new String[topN.size()];		
+		float[] pageRanks = new float[topRes.size()];
+		String[] urls  = new String[topRes.size()];		
 		for (int i = 0; i <pageRanks.length ; i++) {
-			Map.Entry<Float, Integer> entry = topN.poll();
+			Map.Entry<Float, Integer> entry = topRes.poll();
 			pageRanks[i] = entry.getKey();
 			urls[i] =myDic.get(entry.getValue());
 
 		}
+		//remet la liste en ordre decroissant
 		for (int i = pageRanks.length - 1; i >= 0; i--) {
 			context.write(new FloatWritable(pageRanks[i]), new Text(urls[i]));
 		}
